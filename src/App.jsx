@@ -16,7 +16,7 @@ import AboutUs from "./AboutUs.jsx";
 import ContactUs from "./ContactUs.jsx";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import SignUp from "./SignUp.jsx";
+import SignUp from "./Signup.jsx";
 import Login from "./Login.jsx";
 import "react-toastify/dist/ReactToastify.css";
 
