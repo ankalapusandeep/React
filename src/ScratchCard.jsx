@@ -1,17 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import Confetti from "react-confetti";
-import { motion, } from "framer-motion";
+import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./ScratchCard.css";
-
 
 const ScratchCard = ({ orderId, onClose }) => {
   const canvasRef = useRef(null);
   const [isScratching, setIsScratching] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [coupon, setCoupon] = useState("");
-  const width = 420;  // wider card
-  const height = 220; // taller card
+  const width = 420;
+  const height = 220;
 
   const coupons = [
     "Flat 50% OFF on next order 🍔",
@@ -24,13 +23,16 @@ const ScratchCard = ({ orderId, onClose }) => {
     "Buy 2 Get 1 Free 🍕",
   ];
 
-  // Setup foil
+  // Setup foil once
   useEffect(() => {
     const randomCoupon = coupons[Math.floor(Math.random() * coupons.length)];
     setCoupon(randomCoupon);
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
+    // ✅ normal paint mode first
+    ctx.globalCompositeOperation = "source-over";
 
     // silver foil gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -46,8 +48,6 @@ const ScratchCard = ({ orderId, onClose }) => {
       ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.4})`;
       ctx.fillRect(Math.random() * width, Math.random() * height, 1, 1);
     }
-
-    ctx.globalCompositeOperation = "destination-out";
   }, []);
 
   useEffect(() => {
@@ -59,14 +59,27 @@ const ScratchCard = ({ orderId, onClose }) => {
     }
   }, [revealed, onClose]);
 
+  // ✅ universal scratch handler
   const scratch = (e) => {
     if (!isScratching) return;
+    e.preventDefault(); // stop scrolling on mobile
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
+    // ✅ switch to erasing mode only while scratching
+    ctx.globalCompositeOperation = "destination-out";
+
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    let x, y;
+
+    if (e.touches) {
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
 
     ctx.beginPath();
     ctx.arc(x, y, 20, 0, Math.PI * 2);
@@ -96,8 +109,10 @@ const ScratchCard = ({ orderId, onClose }) => {
     }
 
     const percent = (transparent / (width * height)) * 100;
+
     if (percent > 25 && !revealed) {
       setRevealed(true);
+      ctx.clearRect(0, 0, width, height); // ✅ fully clear foil
     }
   };
 
@@ -105,23 +120,19 @@ const ScratchCard = ({ orderId, onClose }) => {
     <div className="scratch-overlay">
       {revealed && <Confetti numberOfPieces={250} recycle={false} />}
 
-     <motion.div
-  initial={{ y: "100%", opacity: 0 }}
-  animate={{
-    y: 0,
-    opacity: 1,
-    x: [0, -4, 4, -4, 4, 0], // vibrate while entering
-  }}
-  transition={{
-    duration: 0.8,
-    ease: "easeOut",
-  }}
-  className="scratch-card shadow-lg"
->
-
-
-
-        <h4 className="fw-bold text-dark mb-1">🎁Congratulations, You won a Scratch Card</h4>
+      <motion.div
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{
+          y: 0,
+          opacity: 1,
+          x: [0, -4, 4, -4, 4, 0], // vibrate while entering
+        }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="scratch-card shadow-lg"
+      >
+        <h4 className="fw-bold text-dark mb-1">
+          🎁 Congratulations, You won a Scratch Card
+        </h4>
         <p className="text-muted small mb-3">Order ID: {orderId}</p>
 
         <div className="scratch-container position-relative">
@@ -138,28 +149,31 @@ const ScratchCard = ({ orderId, onClose }) => {
                 </span>
               </>
             ) : (
-              <p className="small opacity-75 text-white">
-                TAP ANYWHERE
-              </p>
+              <p className="small opacity-75 text-white">TAP ANYWHERE</p>
             )}
           </div>
 
-          <canvas
-            ref={canvasRef}
-            width={width}
-            height={height}
-            className="scratch-canvas rounded"
-            onMouseDown={startScratching}
-            onMouseMove={scratch}
-            onMouseUp={stopScratching}
-            onMouseLeave={stopScratching}
-            onTouchStart={(e) => startScratching(e.touches[0])}
-            onTouchMove={(e) => scratch(e.touches[0])}
-            onTouchEnd={stopScratching}
-          />
+          {!revealed && (
+            <canvas
+              ref={canvasRef}
+              width={width}
+              height={height}
+              className="scratch-canvas rounded"
+              onMouseDown={startScratching}
+              onMouseMove={scratch}
+              onMouseUp={stopScratching}
+              onMouseLeave={stopScratching}
+              onTouchStart={startScratching}
+              onTouchMove={scratch}
+              onTouchEnd={stopScratching}
+            />
+          )}
         </div>
 
-        <button className="btn btn-danger w-100 mt-3 fw-bold" onClick={onClose}>
+        <button
+          className="btn btn-danger w-100 mt-3 fw-bold"
+          onClick={onClose}
+        >
           Close
         </button>
       </motion.div>

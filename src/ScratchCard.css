@@ -1,11 +1,12 @@
+/* Overlay background */
 .scratch-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.65);
 
   display: flex;
   justify-content: center;
@@ -14,46 +15,98 @@
   z-index: 9999;
 }
 
+/* Main card */
 .scratch-card {
   max-width: 95%;
-  width: 460px; /* bigger on desktop */
-  background: linear-gradient(135deg, #ffffff, #fdf5e6);
+  width: 480px;
+  background: linear-gradient(135deg, #ffffff, #fdfaf3);
   border-radius: 20px;
-  padding: 24px;
+  padding: 28px;
   text-align: center;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .scratch-card:hover {
-  transform: scale(1.02);
-  transition: 0.3s ease-in-out;
+  transform: scale(1.03);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
 
+/* Scratch area container */
 .scratch-container {
   position: relative;
-  margin: 15px 0;
+  margin: 18px 0;
+  border-radius: 15px;
+  overflow: hidden;
 }
 
+/* Reward content box */
 .reward-box {
-  background: #e2ea0c; /* blue before reveal */
+  background: linear-gradient(135deg, #ffd700, #ffae00, #ffef9f);
   width: 100%;
   height: 220px;
   border-radius: 15px;
   position: relative;
   overflow: hidden;
   color: white;
-  transition: background 0.4s ease, color 0.4s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.3rem;
+  transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease-in-out;
 }
 
+.reward-box p {
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+/* After reveal */
 .reward-box.revealed {
-  background: #ffffff; /* white after reveal */
-  color: black;
+  background: #ffffff;
+  color: #222;
+  font-size: 1.4rem;
+  font-weight: bold;
+  transform: scale(1.05);
 }
 
+/* Scratch foil canvas */
 .scratch-canvas {
   position: absolute;
   top: 0;
   left: 0;
   cursor: grab;
   border-radius: 12px;
+  touch-action: none; /* ✅ prevents scrolling on mobile while scratching */
+
+  /* ✨ silver glossy foil look */
+  background: linear-gradient(
+    135deg,
+    #c0c0c0 0%,
+    #e6e6e6 25%,
+    #b0b0b0 50%,
+    #f5f5f5 75%,
+    #a9a9a9 100%
+  );
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3),
+              inset 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+/* CTA Button */
+.scratch-card button {
+  background: linear-gradient(135deg, #ff4d4d, #ff1a1a);
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.scratch-card button:hover {
+  background: linear-gradient(135deg, #ff1a1a, #cc0000);
+  transform: translateY(-2px);
 }
