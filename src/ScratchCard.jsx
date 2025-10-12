@@ -9,8 +9,8 @@ const ScratchCard = ({ orderId, onClose }) => {
   const [isScratching, setIsScratching] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [coupon, setCoupon] = useState("");
-  const width = 420;
-  const height = 220;
+  const width = 420;  // wider card
+  const height = 220; // taller card
 
   const coupons = [
     "Flat 50% OFF on next order 🍔",
@@ -23,16 +23,13 @@ const ScratchCard = ({ orderId, onClose }) => {
     "Buy 2 Get 1 Free 🍕",
   ];
 
-  // Setup foil once
+  // Setup foil
   useEffect(() => {
     const randomCoupon = coupons[Math.floor(Math.random() * coupons.length)];
     setCoupon(randomCoupon);
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
-    // ✅ normal paint mode first
-    ctx.globalCompositeOperation = "source-over";
 
     // silver foil gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -41,13 +38,15 @@ const ScratchCard = ({ orderId, onClose }) => {
     gradient.addColorStop(1, "#b0b0b0");
 
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, width, height); 
 
     // sparkle effect
     for (let i = 0; i < 600; i++) {
       ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.4})`;
       ctx.fillRect(Math.random() * width, Math.random() * height, 1, 1);
     }
+
+    ctx.globalCompositeOperation = "destination-out";
   }, []);
 
   useEffect(() => {
@@ -62,21 +61,18 @@ const ScratchCard = ({ orderId, onClose }) => {
   // ✅ universal scratch handler
   const scratch = (e) => {
     if (!isScratching) return;
-    e.preventDefault(); // stop scrolling on mobile
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
-    // ✅ switch to erasing mode only while scratching
-    ctx.globalCompositeOperation = "destination-out";
-
     const rect = canvas.getBoundingClientRect();
-    let x, y;
 
+    let x, y;
     if (e.touches) {
+      // Touch event
       x = e.touches[0].clientX - rect.left;
       y = e.touches[0].clientY - rect.top;
     } else {
+      // Mouse event
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
     }
@@ -109,10 +105,8 @@ const ScratchCard = ({ orderId, onClose }) => {
     }
 
     const percent = (transparent / (width * height)) * 100;
-
     if (percent > 25 && !revealed) {
       setRevealed(true);
-      ctx.clearRect(0, 0, width, height); // ✅ fully clear foil
     }
   };
 
@@ -127,7 +121,10 @@ const ScratchCard = ({ orderId, onClose }) => {
           opacity: 1,
           x: [0, -4, 4, -4, 4, 0], // vibrate while entering
         }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{
+          duration: 0.8,
+          ease: "easeOut",
+        }}
         className="scratch-card shadow-lg"
       >
         <h4 className="fw-bold text-dark mb-1">
@@ -153,21 +150,19 @@ const ScratchCard = ({ orderId, onClose }) => {
             )}
           </div>
 
-          {!revealed && (
-            <canvas
-              ref={canvasRef}
-              width={width}
-              height={height}
-              className="scratch-canvas rounded"
-              onMouseDown={startScratching}
-              onMouseMove={scratch}
-              onMouseUp={stopScratching}
-              onMouseLeave={stopScratching}
-              onTouchStart={startScratching}
-              onTouchMove={scratch}
-              onTouchEnd={stopScratching}
-            />
-          )}
+          <canvas
+            ref={canvasRef}
+            width={width}
+            height={height}
+            className="scratch-canvas rounded"
+            onMouseDown={startScratching}
+            onMouseMove={scratch}
+            onMouseUp={stopScratching}
+            onMouseLeave={stopScratching}
+            onTouchStart={startScratching}
+            onTouchMove={scratch}
+            onTouchEnd={stopScratching}
+          />
         </div>
 
         <button
