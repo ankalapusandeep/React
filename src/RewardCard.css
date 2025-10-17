@@ -1,0 +1,35 @@
+.reward-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0;
+}
+
+.reward-card {
+  width: 400px;
+  background: linear-gradient(135deg, #fffbea, #fdf5d9);
+  border-radius: 16px;
+  text-align: center;
+  padding: 30px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #ffe066;
+  transition: transform 0.3s ease;
+}
+
+.reward-card:hover {
+  transform: translateY(-4px);
+}
+
+.reward-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.reward-text {
+  font-size: 1.1rem;
+  color: #28a745;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
