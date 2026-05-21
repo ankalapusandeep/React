@@ -1,174 +1,211 @@
-import React, { useState } from "react";
-import "./Signup.css";
-import { useDispatch } from "react-redux";
-import { registerUser } from "./store";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "./store";
+import { useDispatch, useSelector } from "react-redux";
+import "./Login.css";
 
-function SignUp() {
+function Login() {
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const currentUser = useSelector((state) => state.users.currentUser);
+  const loginError = useSelector((state) => state.users.error);
+
   const [formData, setFormData] = useState({
-    fullname: "",
     email: "",
     password: "",
-    phone: "",
-    gender: "",
-    address: "",
   });
 
   const [errors, setErrors] = useState({});
 
-  // Handle input change
+  // Handle input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  // Validate fields
+  // Validation
   const validate = () => {
+
     let tempErrors = {};
 
-    if (!formData.fullname.trim()) tempErrors.fullname = "Full name is required";
+    // Email
     if (!formData.email.trim()) {
       tempErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      tempErrors.email = " Enter a valid email";
+      tempErrors.email = "Enter valid email";
     }
+
+    // Password
     if (!formData.password.trim()) {
       tempErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      tempErrors.password = "ⓘ Password must be at least 6 characters";
+      tempErrors.password = "Password must be minimum 6 characters";
     }
-    if (!formData.phone.trim()) {
-      tempErrors.phone = " Phone number is required";
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      tempErrors.phone = "ⓘ Enter a valid 10-digit number";
-    }
-    if (!formData.gender) tempErrors.gender = " Please select gender";
-    if (!formData.address.trim()) tempErrors.address = " Address is required";
 
     setErrors(tempErrors);
+
     return Object.keys(tempErrors).length === 0;
   };
 
-  // Submit form
+  // Submit Login
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-         const newUser = {
-        id: Date.now(), // unique id
-        ...formData,
-      };
 
-      // ✅ Save in Redux + LocalStorage
-      dispatch(registerUser(newUser));
-      alert("✅ SignUp Successful!");
-      console.log("User Data:", newUser);
-      navigate("/login");
-      // you can save this data to backend or localStorage
+    e.preventDefault();
+
+    if (validate()) {
+
+      dispatch(
+        loginUser({
+          email: formData.email,
+          password: formData.password,
+        })
+      );
     }
   };
 
+  // Redirect after login
+  useEffect(() => {
+
+    if (currentUser) {
+
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userEmail", currentUser.email);
+
+      alert("✅ Login Successful!");
+
+      navigate("/");
+    }
+
+  }, [currentUser, navigate]);
+
   return (
-    <div className="signup-container" style={{marginTop:"80px"}}>
-      <div className="signup-card">
-        <h2 className="signup-title">Create an Account</h2>
-        <form onSubmit={handleSubmit} noValidate>
-          {/* Full Name */}
-          <div className="form-group">
-            <label >Full Name</label>
-            <input
-              type="text"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              className={errors.fullname ? "error-input" : ""}
-              placeholder=" Enter your full name"
-            />
-            {errors.fullname && <small className="error-text">{errors.fullname}</small>}
+
+    <div className="scene">
+
+      <div className="grid-lines"></div>
+
+      <div className="bg-glow blue"></div>
+      <div className="bg-glow purple"></div>
+      <div className="bg-glow cyan"></div>
+
+      <div className="card-wrapper">
+
+        <div className="card">
+
+          <div className="card-top-border"></div>
+
+          <div className="logo-ring">
+            <div className="logo-inner">🔑</div>
           </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? "error-input" : ""}
-              placeholder=" Enter your email"
-            />
-            {errors.email && <small className="error-text">{errors.email}</small>}
-          </div>
+          <h2>Welcome Back</h2>
 
-          {/* Password */}
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={errors.password ? "error-input" : ""}
-              placeholder=" Enter your password"
-            />
-            {errors.password && <small className="error-text">{errors.password}</small>}
-          </div>
+          <p className="card-sub">
+            Sign in to your account
+          </p>
 
-          {/* Phone Number */}
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className={errors.phone ? "error-input" : ""}
-              placeholder=" Enter your phone number"
-            />
-            {errors.phone && <small className="error-text">{errors.phone}</small>}
-          </div>
+          <form onSubmit={handleSubmit} noValidate>
 
-          {/* Gender */}
-          <div className="form-group">
-            <label>Gender</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className={errors.gender ? "error-input" : ""}
+            {/* Email */}
+
+            <div className="field-group">
+
+              <label className="field-label">
+                Email Address
+              </label>
+
+              <div className="field-wrapper">
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`field-input ${errors.email ? "input-error" : ""}`}
+                />
+
+              </div>
+
+              {errors.email && (
+                <small className="error-text">
+                  {errors.email}
+                </small>
+              )}
+
+            </div>
+
+            {/* Password */}
+
+            <div className="field-group">
+
+              <label className="field-label">
+                Password
+              </label>
+
+              <div className="field-wrapper">
+
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`field-input ${errors.password ? "input-error" : ""}`}
+                />
+
+              </div>
+
+              {errors.password && (
+                <small className="error-text">
+                  {errors.password}
+                </small>
+              )}
+
+            </div>
+
+            {/* Login Button */}
+
+            <button type="submit" className="login-btn">
+              Login
+            </button>
+
+            {/* Redux Login Error */}
+
+            {loginError && (
+              <p className="error-text" style={{ marginTop: "10px" }}>
+                {loginError}
+              </p>
+            )}
+
+          </form>
+
+          {/* Signup Link */}
+
+          <div className="signup-row">
+
+            Don't have an account?{" "}
+
+            <button
+              type="button"
+              className="signup-link-btn"
+              onClick={() => navigate("/signup")}
             >
-              <option value="">-- Select Gender --</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-            {errors.gender && <small className="error-text">{errors.gender}</small>}
+              Create Account
+            </button>
+
           </div>
 
-          {/* Address */}
-          <div className="form-group">
-            <label>Address</label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className={errors.address ? "error-input" : ""}
-              placeholder=" Enter your address"
-            />
-            {errors.address && <small className="error-text">{errors.address}</small>}
-          </div>
+        </div>
 
-          {/* Submit */}
-          <button type="submit" className="signup-btn">
-            Sign Up
-          </button>
-        </form>
       </div>
+
     </div>
   );
 }
 
-export default SignUp;
+export default Login;
